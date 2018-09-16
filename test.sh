@@ -9,5 +9,13 @@ then
     exit $rc;
 fi
 
+python app/manage.py test;
+rc=$?;
+if [[ $rc != 0 ]];
+then
+    echo "Fix unittests"
+    exit $rc;
+fi
+
 echo "Tests pass";
 exit 0;

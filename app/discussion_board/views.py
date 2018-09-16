@@ -63,7 +63,7 @@ class UserThreadViewSet(viewsets.ModelViewSet):
     serializer_class = ThreadSerializer
 
     def get_queryset(self):
-        return Thread.objects.filter(participant__username=self.kwargs['user_username'])
+        return Thread.objects.filter(participants__username=self.kwargs['user_username'])
 
 
 class UserMessageViewSet(viewsets.ModelViewSet):
