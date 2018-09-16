@@ -23,6 +23,7 @@ class EntityViewSet(viewsets.ModelViewSet):
 
     queryset = Entity.objects.all()
     serializer_class = EntitySerializer
+    lookup_field = 'guid'
 
 
 class ThreadViewSet(viewsets.ModelViewSet):
@@ -39,3 +40,43 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('creation',)
+
+
+class EntityThreadViewSet(viewsets.ModelViewSet):
+
+    serializer_class = ThreadSerializer
+
+    def get_queryset(self):
+        return Thread.objects.filter(entity__guid=self.kwargs['entity_guid'])
+
+
+class UserOwnedThreadViewSet(viewsets.ModelViewSet):
+
+    serializer_class = ThreadSerializer
+
+    def get_queryset(self):
+        return Thread.objects.filter(owner__username=self.kwargs['user_username'])
+
+
+class UserThreadViewSet(viewsets.ModelViewSet):
+
+    serializer_class = ThreadSerializer
+
+    def get_queryset(self):
+        return Thread.objects.filter(participant__username=self.kwargs['user_username'])
+
+
+class UserMessageViewSet(viewsets.ModelViewSet):
+
+    serializer_class = MessageSerializer
+
+    def get_queryset(self):
+        return Message.objects.filter(author__username=self.kwargs['user_username'])
+
+
+class ThreadMessageViewSet(viewsets.ModelViewSet):
+
+    serializer_class = MessageSerializer
+
+    def get_queryset(self):
+        return Message.objects.filter(thread=self.kwargs['thread_pk']).order_by('creation')
