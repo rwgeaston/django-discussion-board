@@ -12,6 +12,7 @@ class DiscussionBoardGetTest(TestCase):
     def setUp(self):
         self.client = Client()
         User = apps.get_model(models.User)
+        User.objects.all().delete()
         robert = User.objects.create(username='robert')
         guillaume = User.objects.create(username='guillaume')
         User.objects.create(username='joel')
@@ -39,6 +40,15 @@ class DiscussionBoardGetTest(TestCase):
             author=robert,
             thread=thread1,
         )
+        self.maxDiff = None
+
+    def tearDown(self):
+        models.Message.objects.all().delete()
+        models.Thread.objects.all().delete()
+        models.Entity.objects.all().delete()
+        User = apps.get_model(models.User)
+
+        User.objects.all().delete()
 
     def test_user_gets(self):
         response = self.client.get('/api/users/')
@@ -52,12 +62,12 @@ class DiscussionBoardGetTest(TestCase):
                 'results': [
                     {
                         'username': 'robert',
-                        'threads': ["1) Robert's Exciting Thread", "2) Robert's Private Thread"],
-                        'owned_threads': ["1) Robert's Exciting Thread", "2) Robert's Private Thread"]
+                        'threads': [ANY, ANY],
+                        'owned_threads': [ANY, ANY]
                     },
                     {
                         'username': 'guillaume',
-                        'threads': ["1) Robert's Exciting Thread"],
+                        'threads': [ANY],
                         'owned_threads': []
                     },
                     {
@@ -75,8 +85,8 @@ class DiscussionBoardGetTest(TestCase):
             response.json(),
             {
                 'username': 'robert',
-                'threads': ["1) Robert's Exciting Thread", "2) Robert's Private Thread"],
-                'owned_threads': ["1) Robert's Exciting Thread", "2) Robert's Private Thread"]
+                'threads': [ANY, ANY],
+                'owned_threads': [ANY, ANY]
             },
         )
 
@@ -89,7 +99,7 @@ class DiscussionBoardGetTest(TestCase):
                 'next': None,
                 'previous': None,
                 'results': [{
-                    'id': 1,
+                    'id': ANY,
                     'entity': None,
                     'owner': 'robert',
                     'participants': ['robert', 'guillaume'],
@@ -116,3 +126,33 @@ class DiscussionBoardGetTest(TestCase):
 
         response = self.client.get('/api/users/guillaume/messages/')
         self.assertEqual(response.json()['count'], 0)
+
+    def test_thread_gets(self):
+        response = self.client.get('/api/threads/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            {
+                'count': 2,
+                'next': None,
+                'previous': None,
+                'results': [
+                    {
+                        'id': ANY,
+                        'entity': None,
+                        'owner': 'robert',
+                        'participants': ['robert', 'guillaume'],
+                        'title': "Robert's Exciting Thread",
+                        'creation': ANY,
+                    },
+                    {
+                        'id': ANY,
+                        'entity': '1234',
+                        'owner': 'robert',
+                        'participants': ['robert'],
+                        'title': "Robert's Private Thread",
+                        'creation': ANY,
+                    },
+                ],
+            },
+        )
