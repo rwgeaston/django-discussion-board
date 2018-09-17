@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+  mysql:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: database
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3306:3306"
+  web:
+    build: .
+    command: python app/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql

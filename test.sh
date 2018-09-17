@@ -9,7 +9,7 @@ then
     exit $rc;
 fi
 
-python app/manage.py test;
+docker-compose exec -T web python app/manage.py test;
 rc=$?;
 if [[ $rc != 0 ]];
 then

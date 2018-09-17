@@ -22,15 +22,28 @@ and some others
 setup
 ------
 
-Not dockerised yet so not production ready:
-
-- make a python3.6 virtualenv,
-- pip install requirements
-- make a local_settings.py file in same folder as settings with
+Make a local_settings.py in main folder with values like:
 
     DEBUG=True
 
     SECRET_KEY='something secret'
+    
+    ALLOWED_HOSTS = ['0.0.0.0']
 
-- python app/manage.py migrate
-- python app/manage.py runserver
+then run
+
+    docker-compose up
+    
+to run the server but as a one off you need to do 
+
+    docker-compose exec web python app/manage.py migrate
+
+(leave docker-compose up while doing this.)
+
+you can also do 
+
+    docker-compose exec web python app/manage.py test
+
+to run the tests.
+
+Precommit hook runs pylint which I advise doing in a python3.6 virtualenv (pip install -r local_requirements.txt in this).
